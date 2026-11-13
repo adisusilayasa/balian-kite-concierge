@@ -10,11 +10,12 @@
 - **Project Name:** `Balian Kite Concierge`
 - **Track:** `Track 02 — Kite ("Shop, book, and pay on your behalf, safely")`
 - **Live Demo URL:** `https://concierge.balianapp.com`
+- **Demo Video (1080p MP4, 36s):** `https://concierge.balianapp.com/demo.mp4`
 - **Interactive Workspace:** `https://concierge.balianapp.com/app`
 - **Interactive Pitch Deck:** `https://concierge.balianapp.com/deck`
 - **Downloadable PDF Pitch Deck:** `https://concierge.balianapp.com/balian-kite-concierge-deck.pdf`
 - **x402 Agent Discovery:** `https://concierge.balianapp.com/.well-known/x402` & `https://concierge.balianapp.com/service.yaml`
-- **Public GitHub Repo:** `https://github.com/adisusilayasa/balian-kite-concierge` *(push when ready)*
+- **Public GitHub Repo:** `https://github.com/adisusilayasa/balian-kite-concierge`
 
 ### Short Write-Up (Problem, Architecture, & Why Kite + SERV)
 > Booking beach clubs, plunge villas, fastboats, and EV transport in Bali still relies on manual WhatsApp invoices, opaque minimum-spend rules, and currency errors. Giving an AI agent unrestricted wallet access creates severe prompt-injection and overspending risks.
