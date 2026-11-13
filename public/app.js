@@ -1012,7 +1012,14 @@
     };
 
     document.getElementById("btnConnectWallet")?.addEventListener("click", connectEvmWallet);
-    document.getElementById("paxInput")?.addEventListener("input", updateSplitBanner);
+    document.getElementById("paxInput")?.addEventListener("input", () => {
+      updateSplitBanner();
+      const promptEl = document.getElementById("promptInput");
+      const pax = Math.max(1, Number(document.getElementById("paxInput")?.value || 2));
+      if (promptEl && /\bfor \d+ guests?\b/.test(promptEl.value)) {
+        promptEl.value = promptEl.value.replace(/\bfor \d+ guests?\b/, `for ${pax} guests`);
+      }
+    });
     document.getElementById("btnCopySplit")?.addEventListener("click", async () => {
       const v = state.data?.venues?.find((x) => x.id === state.selectedVenueId);
       const pax = Math.max(1, Number(document.getElementById("paxInput")?.value || 2));
