@@ -417,7 +417,34 @@ app.post("/api/x402/reserve", async (c) => {
   });
 });
 
-// Serve clean static frontend from ./public
+const PUBLIC_DIR = path.join(process.cwd(), "public");
+
+// Clean explicit routes for Landing (/), Workspace (/app), Pitch Deck (/deck), and Kite Manifest (/service.yaml)
+app.get("/", (c) => {
+  return c.html(fs.readFileSync(path.join(PUBLIC_DIR, "index.html"), "utf8"));
+});
+
+app.get("/app", (c) => {
+  return c.html(fs.readFileSync(path.join(PUBLIC_DIR, "app.html"), "utf8"));
+});
+
+app.get("/deck", (c) => {
+  return c.html(fs.readFileSync(path.join(PUBLIC_DIR, "deck.html"), "utf8"));
+});
+
+app.get("/service.yaml", (c) => {
+  return c.text(fs.readFileSync(path.join(process.cwd(), "service.yaml"), "utf8"), 200, {
+    "Content-Type": "text/yaml; charset=utf-8",
+  });
+});
+
+// Serve clean static assets from ./public (no stale edge CSS/JS caching)
+app.use("/*", async (c, next) => {
+  await next();
+  if (c.req.path.endsWith(".css") || c.req.path.endsWith(".js") || c.req.path.endsWith(".html")) {
+    c.header("Cache-Control", "no-store, max-age=0");
+  }
+});
 app.use("/*", serveStatic({ root: "./public" }));
 
 serve({
