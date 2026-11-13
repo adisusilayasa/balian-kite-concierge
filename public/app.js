@@ -10,6 +10,8 @@
     lang: "en",
     jurisdiction: "cross_border_intl",
     lastEvaluation: null,
+    walletAddress: null,
+    walletChainHex: null,
   };
 
   const I18N = {
@@ -21,6 +23,7 @@
       kpiBlocks: "Guardrail blocks",
       invTitle: "Bali hospitality inventory",
       invSub: "Full-booked units stay visible with nearest open alternatives.",
+      mapTitle: "Bali cliffside deck and coastal map",
       chartWindow: "Operating windows and 18:18 WITA sunset horizon",
       chartAllowance: "Kite Passport session budget",
       runnerTitle: "Autonomous booking runner",
@@ -41,6 +44,7 @@
       kpiBlocks: "Blokir guardrail",
       invTitle: "Inventaris hospitality Bali",
       invSub: "Unit penuh tetap ditampilkan bersama alternatif terdekat yang kosong.",
+      mapTitle: "Peta dek tebing & pesisir Bali",
       chartWindow: "Jam operasional & garis sunset 18:18 WITA",
       chartAllowance: "Anggaran sesi Kite Passport",
       runnerTitle: "Eksekutor booking otonom",
@@ -176,6 +180,100 @@
     }
   }
 
+  function selectVenue(vid) {
+    const all = state.data?.venues || [];
+    const v = all.find((x) => x.id === vid);
+    if (!v) return;
+    state.selectedVenueId = vid;
+    const promptInput = document.getElementById("promptInput");
+    const pax = Number(document.getElementById("paxInput")?.value || 2);
+    if (promptInput) {
+      promptInput.value = `Book ${v.name} (${v.unit_label}) in ${v.area} for ${pax} guests at $${v.price_usd.toFixed(2)}.`;
+    }
+    updateSplitBanner();
+    renderFloorMap();
+    renderVenues();
+    renderCharts();
+  }
+
+  function updateSplitBanner() {
+    const venues = state.data?.venues || [];
+    const v = venues.find((x) => x.id === state.selectedVenueId) || venues[0];
+    const pax = Math.max(1, Number(document.getElementById("paxInput")?.value || 2));
+    if (!v) return;
+    const shareUsd = v.price_usd / pax;
+    const label = state.lang === "id"
+      ? `Patungan: ${formatMoney(shareUsd)} / tamu (${pax} pax)`
+      : `Split share: ${formatMoney(shareUsd)} / guest (${pax} pax)`;
+    setText("splitText", label);
+  }
+
+  function renderFloorMap() {
+    const host = document.getElementById("floorMapHost");
+    const bar = document.getElementById("unitTelemetryBar");
+    if (!host || !state.data) return;
+    const venues = state.data.venues || [];
+    const coords = {
+      "azure-s1": { x: 42, y: 42, w: 132, h: 46, tag: "S1 · $68" },
+      "azure-s4": { x: 186, y: 42, w: 132, h: 46, tag: "S4 · FULL" },
+      "karang-villa": { x: 330, y: 42, w: 138, h: 46, tag: "VILLA · $195" },
+      "sawah-table": { x: 480, y: 42, w: 142, h: 46, tag: "UBUD · $55" },
+      "nusa-boat": { x: 42, y: 102, w: 276, h: 36, tag: "SANUR PIER · $44" },
+      "canggu-ev": { x: 330, y: 102, w: 292, h: 36, tag: "BERAWA EV · $18" },
+    };
+
+    const nodes = venues
+      .map((v) => {
+        const c = coords[v.id];
+        if (!c) return "";
+        const isSel = v.id === state.selectedVenueId;
+        const isBooked = v.status !== "available";
+        const fill = isSel ? "#2a2416" : isBooked ? "#2c1a20" : "#171c1b";
+        const stroke = isSel ? "#d4a359" : isBooked ? "#e5566f" : "#44a282";
+        const ink = isSel ? "#f1f1f4" : isBooked ? "#e5566f" : "#dcdce2";
+        return `
+          <g class="floor-map-node" data-map-venue="${esc(v.id)}" role="button" tabindex="0" aria-label="${esc(v.name)} ${esc(v.unit_label)}">
+            <rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="${isSel ? "1.6" : "1"}"/>
+            <text x="${c.x + 10}" y="${c.y + 19}" fill="${ink}" font-size="11.5" font-weight="600" font-family="Public Sans, sans-serif">${esc(c.tag)}</text>
+            <text x="${c.x + 10}" y="${c.y + 34}" fill="#9898a0" font-size="10.5" font-family="Public Sans, sans-serif">${esc(v.area)}</text>
+          </g>
+        `;
+      })
+      .join("");
+
+    host.innerHTML = `
+      <svg viewBox="0 0 650 156" width="100%" role="img" aria-label="Interactive Bali hospitality architectural floor map" style="display:block;">
+        <rect x="8" y="8" width="634" height="140" rx="5" fill="#131217" stroke="#222224" stroke-width="1"/>
+        <line x1="20" y1="24" x2="630" y2="24" stroke="#2b2b2b" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="26" y="20" fill="#d4a359" font-size="10.5" font-weight="600" font-family="Public Sans, sans-serif">INDIAN OCEAN SUNSET HORIZON · 270 DEG WEST</text>
+        <text x="515" y="20" fill="#9898a0" font-size="10.5" font-family="Public Sans, sans-serif">LOW TIDE 0.7M</text>
+        ${nodes}
+      </svg>
+    `;
+
+    host.querySelectorAll("[data-map-venue]").forEach((el) => {
+      const trigger = () => {
+        const vid = el.getAttribute("data-map-venue");
+        if (vid) selectVenue(vid);
+      };
+      el.addEventListener("click", trigger);
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          trigger();
+        }
+      });
+    });
+
+    const sel = venues.find((v) => v.id === state.selectedVenueId);
+    if (bar && sel) {
+      bar.innerHTML = `
+        <span><strong>${esc(sel.unit_label)}</strong> · ${esc(sel.area)}</span>
+        <span>Azimuth ${esc(sel.sunset_azimuth)} · Water ${sel.water_dist_m}m · Cap ${sel.max_guests} pax</span>
+      `;
+    }
+  }
+
   function renderVenues() {
     const listEl = document.getElementById("venueList");
     if (!listEl || !state.data) return;
@@ -220,15 +318,7 @@
     listEl.querySelectorAll(".venue-row").forEach((btn) => {
       btn.addEventListener("click", () => {
         const vid = btn.getAttribute("data-venue-id");
-        if (!vid) return;
-        state.selectedVenueId = vid;
-        const v = all.find((x) => x.id === vid);
-        const promptInput = document.getElementById("promptInput");
-        if (v && promptInput) {
-          promptInput.value = `Book ${v.name} (${v.unit_label}) in ${v.area} for ${document.getElementById("paxInput").value || 2} guests at $${v.price_usd.toFixed(2)}.`;
-        }
-        renderVenues();
-        renderCharts();
+        if (vid) selectVenue(vid);
       });
     });
   }
@@ -391,7 +481,11 @@
     if (ev.verdict === "APPROVE" && ev.selectedVenue) {
       actionButtons = `
         <div class="trace-actions">
-          <button type="button" class="btn-primary" id="btnSettleSandbox" style="width: 100%; height: 36px;">
+          ${state.walletAddress ? `
+          <button type="button" class="btn-primary" id="btnSignX402Real" style="width: 100%; height: 36px;">
+            Sign real EIP-3009 x402 (${formatMoney(ev.amountUsd)})
+          </button>` : ""}
+          <button type="button" class="${state.walletAddress ? "btn-secondary" : "btn-primary"}" id="btnSettleSandbox" style="width: 100%; height: 36px;">
             Settle ${formatMoney(ev.amountUsd)} via Sandbox x402 Passkey
           </button>
           <button type="button" class="btn-secondary" id="btnShow402ForVenue" style="width: 100%; height: 34px;">
@@ -417,6 +511,15 @@
       `;
     }
 
+    const servDetailsPayload = JSON.stringify({
+      completionId: ev.servCompletionId,
+      model: ev.servModel,
+      tools: ev.servToolsUsed,
+      usage: ev.servUsage,
+      reasoningSummary: ev.servReasoningSummary,
+      requestShape: ev.servRequestShape,
+    }, null, 2);
+
     box.innerHTML = `
       <div class="trace-verdict-row">
         <span class="pill ${pillClass}">${esc(ev.verdict)}</span>
@@ -426,8 +529,18 @@
         <strong>${esc(ev.traceId)}:</strong> ${esc(ev.reason)}
       </div>
       <div class="check-list">${checksHtml}</div>
+      <details class="trace-details">
+        <summary>SERV Reasoning telemetry (${esc(ev.servToolsUsed?.join(", ") || "tools")})</summary>
+        <div style="font-size: 13px; color: var(--ink-soft); margin-bottom: 8px;">${esc(ev.servReasoningSummary || ev.servRawExplanation)}</div>
+        <pre class="code-block">${esc(servDetailsPayload)}</pre>
+      </details>
       ${actionButtons}
     `;
+
+    const realSignBtn = document.getElementById("btnSignX402Real");
+    if (realSignBtn) {
+      realSignBtn.addEventListener("click", () => handleRealWalletX402(ev));
+    }
 
     const settleBtn = document.getElementById("btnSettleSandbox");
     if (settleBtn) {
@@ -548,15 +661,174 @@
 
     setText(
       "x402EndpointsPreview",
-      `Discovery:   GET  ${protocol.publicUrl}/.well-known/x402\nReadiness:   GET  ${protocol.publicUrl}/readyz\nQuote (x402):GET  ${protocol.publicUrl}/api/x402/quote?venueId=${state.selectedVenueId}\nBook (x402): POST ${protocol.publicUrl}/api/x402/reserve\nFacilitator: ${protocol.facilitatorUrl}\nNetwork:     ${protocol.network} (${protocol.symbol})\nPayTo:       ${protocol.payTo}`,
+      `Discovery:   GET  ${protocol.publicUrl}/.well-known/x402\nService YAML:GET  ${protocol.publicUrl}/service.yaml\nReadiness:   GET  ${protocol.publicUrl}/readyz\nQuote (x402):GET  ${protocol.publicUrl}/api/x402/quote?venueId=${state.selectedVenueId}\nBook (x402): POST ${protocol.publicUrl}/api/x402/reserve\nFacilitator: ${protocol.facilitatorUrl}\nNetworks:    eip155:2366 (USDC.e) | eip155:2368 (pieUSD Testnet)\nPayTo:       ${protocol.payTo}`,
     );
+  }
+
+  async function connectEvmWallet() {
+    if (!window.ethereum) {
+      openModal(
+        "No EVM wallet detected",
+        `<div class="notice-line">Install MetaMask or a passkey EVM wallet extension to sign live EIP-3009 <code>TransferWithAuthorization</code> payloads on Kite Testnet (2368) or Mainnet (2366). You can still test every policy and HTTP 402 route via the Sandbox flow.</div>`,
+      );
+      return;
+    }
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const chainHex = await window.ethereum.request({ method: "eth_chainId" });
+      if (accounts && accounts[0]) {
+        state.walletAddress = accounts[0];
+        state.walletChainHex = chainHex;
+        const dot = document.getElementById("walletDot");
+        if (dot) dot.classList.add("live");
+        setText("walletBtnLabel", `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
+        if (state.lastEvaluation) renderEvaluationTrace(state.lastEvaluation);
+      }
+    } catch (err) {
+      openModal("Wallet connection cancelled", `<div class="notice-line">${esc(err.message || "User rejected wallet request.")}</div>`);
+    }
+  }
+
+  async function handleRealWalletX402(ev) {
+    if (!window.ethereum || !state.walletAddress || !ev.selectedVenue) {
+      await connectEvmWallet();
+      return;
+    }
+    const targetVenue = ev.selectedVenue.id;
+    const guestName = document.getElementById("guestNameInput")?.value || "Kite Wallet Guest";
+    const pax = Number(document.getElementById("paxInput")?.value || 2);
+    const box = document.getElementById("traceBox");
+    try {
+      // 1. Trigger live HTTP 402 from server
+      const probe = await fetch(`/api/x402/reserve?venueId=${encodeURIComponent(targetVenue)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ venueId: targetVenue, guestName, pax }),
+      });
+      const encodedHdr = probe.headers.get("PAYMENT-REQUIRED") || probe.headers.get("X-PAYMENT-REQUIRED") || "";
+      if (probe.status !== 402 || !encodedHdr) {
+        throw new Error(`Expected HTTP 402 challenge, received ${probe.status}`);
+      }
+      const terms = JSON.parse(atob(encodedHdr));
+      const chainIdDec = parseInt(state.walletChainHex || "0x940", 16);
+      const preferred =
+        (terms.accepts || []).find((a) => a.network === `eip155:${chainIdDec}`) ||
+        (terms.accepts || []).find((a) => a.network === "eip155:2368") ||
+        (terms.accepts || [])[0];
+      if (!preferred) throw new Error("No matching Kite network terms in 402 challenge.");
+
+      const reqChainNum = Number(String(preferred.network).split(":")[1] || 2366);
+      if (chainIdDec !== reqChainNum) {
+        const targetHex = "0x" + reqChainNum.toString(16);
+        try {
+          await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: targetHex }] });
+          state.walletChainHex = targetHex;
+        } catch {
+          if (reqChainNum === 2368) {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                chainId: "0x940",
+                chainName: "KiteAI Testnet",
+                rpcUrls: ["https://rpc-testnet.gokite.ai/"],
+                nativeCurrency: { name: "KITE", symbol: "KITE", decimals: 18 },
+                blockExplorerUrls: ["https://testnet.kitescan.ai/"],
+              }],
+            });
+          } else {
+            throw new Error(`Please switch wallet to Kite network ${preferred.network} (chain ${reqChainNum}).`);
+          }
+        }
+      }
+
+      // 2. Build EIP-3009 TransferWithAuthorization typed data
+      const rnd = new Uint8Array(32);
+      crypto.getRandomValues(rnd);
+      const nonce = "0x" + Array.from(rnd).map((b) => b.toString(16).padStart(2, "0")).join(""); /* taste-skill-ignore */
+      const nowSec = Math.floor(Date.now() / 1000);
+      const authorization = {
+        from: state.walletAddress,
+        to: preferred.payTo,
+        value: String(preferred.amount),
+        validAfter: "0",
+        validBefore: String(nowSec + (preferred.maxTimeoutSeconds || 300)),
+        nonce,
+      };
+      const typedData = {
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "version", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+          TransferWithAuthorization: [
+            { name: "from", type: "address" },
+            { name: "to", type: "address" },
+            { name: "value", type: "uint256" },
+            { name: "validAfter", type: "uint256" },
+            { name: "validBefore", type: "uint256" },
+            { name: "nonce", type: "bytes32" },
+          ],
+        },
+        primaryType: "TransferWithAuthorization",
+        domain: {
+          name: preferred.extra?.name || "Bridged USDC (Kite AI)",
+          version: preferred.extra?.version || "2",
+          chainId: reqChainNum,
+          verifyingContract: preferred.asset,
+        },
+        message: authorization,
+      };
+      const signature = await window.ethereum.request({
+        method: "eth_signTypedData_v4",
+        params: [state.walletAddress, JSON.stringify(typedData)],
+      });
+      const paymentPayload = {
+        x402Version: 2,
+        resource: terms.resource,
+        accepted: preferred,
+        payload: { authorization, signature },
+      };
+      const b64Sig = btoa(JSON.stringify(paymentPayload));
+      const paidRes = await fetch(`/api/x402/reserve?venueId=${encodeURIComponent(targetVenue)}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "PAYMENT-SIGNATURE": b64Sig,
+        },
+        body: JSON.stringify({ venueId: targetVenue, guestName, pax, sessionId: state.data?.activeSession?.id }),
+      });
+      const paidJson = await paidRes.json().catch(() => ({}));
+      if (!paidRes.ok) {
+        throw new Error(paidJson.error || `Facilitator rejected settlement (${paidRes.status})`);
+      }
+      await refreshState();
+      if (box && paidJson.booking) {
+        box.innerHTML = `
+          <div class="trace-verdict-row">
+            <span class="pill pill-positive">On-chain x402 Settled · ${esc(paidJson.booking.booking_code)}</span>
+            <span class="pill pill-neutral">${esc(paidJson.network)}</span>
+          </div>
+          <div class="notice-line">
+            <strong>${esc(paidJson.booking.venue_name)}</strong> settled via Pieverse Facilitator. Tx/Ref: <code>${esc(paidJson.booking.tx_or_ref)}</code>
+          </div>
+        `;
+      }
+    } catch (err) {
+      if (box) {
+        box.innerHTML += `<div class="notice-line" style="border-color: var(--negative);">${esc(err.message)}</div>`;
+      }
+    }
   }
 
   async function refreshState() {
     state.data = await apiJson("/api/state");
     renderHeaderAndKpis();
+    renderFloorMap();
     renderVenues();
     renderCharts();
+    updateSplitBanner();
     renderPassportAndLedger();
     applyI18n();
   }
@@ -727,14 +999,33 @@
       state.currency = order[(order.indexOf(state.currency) + 1) % order.length];
       applyI18n();
       renderHeaderAndKpis();
+      renderFloorMap();
       renderVenues();
       renderCharts();
+      updateSplitBanner();
       renderPassportAndLedger();
     };
     const toggleLang = () => {
       state.lang = state.lang === "en" ? "id" : "en";
       applyI18n();
+      updateSplitBanner();
     };
+
+    document.getElementById("btnConnectWallet")?.addEventListener("click", connectEvmWallet);
+    document.getElementById("paxInput")?.addEventListener("input", updateSplitBanner);
+    document.getElementById("btnCopySplit")?.addEventListener("click", async () => {
+      const v = state.data?.venues?.find((x) => x.id === state.selectedVenueId);
+      const pax = Math.max(1, Number(document.getElementById("paxInput")?.value || 2));
+      if (!v) return;
+      const url = `${window.location.origin}/?venue=${encodeURIComponent(v.id)}&pax=${pax}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        setText("btnCopySplit", "Copied link");
+        setTimeout(() => setText("btnCopySplit", "Copy split link"), 1800);
+      } catch {
+        openModal("Shareable group split URL", `<pre class="code-block">${esc(url)}</pre>`);
+      }
+    });
 
     document.getElementById("btnCurrencyCycle")?.addEventListener("click", cycleCurr);
     document.getElementById("btnCurrencyTop")?.addEventListener("click", cycleCurr);
@@ -789,6 +1080,13 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeModal();
     });
+  }
+
+  const qs = new URLSearchParams(window.location.search);
+  if (qs.get("venue")) state.selectedVenueId = qs.get("venue");
+  if (qs.get("pax")) {
+    const pEl = document.getElementById("paxInput");
+    if (pEl) pEl.value = String(Math.max(1, Math.min(12, Number(qs.get("pax")))));
   }
 
   wireEvents();

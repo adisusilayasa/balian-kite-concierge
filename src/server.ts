@@ -1,9 +1,11 @@
+import fs from "node:fs";
+import path from "node:path";
 import crypto from "node:crypto";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { CONFIG, FX, toAtomicAmount } from "./config.js";
+import { CONFIG, FX, KITE_NETWORKS, toAtomicAmount } from "./config.js";
 import {
   db,
   getActiveSession,
@@ -103,6 +105,12 @@ app.get("/readyz", async (c) => {
   }
 });
 
+app.get("/service.yaml", (c) => {
+  const yamlPath = path.resolve(process.cwd(), "service.yaml");
+  const content = fs.existsSync(yamlPath) ? fs.readFileSync(yamlPath, "utf8") : "";
+  return c.text(content, 200, { "Content-Type": "text/yaml; charset=utf-8" });
+});
+
 app.get("/.well-known/x402", (c) => {
   return c.json({
     x402Version: 2,
@@ -110,6 +118,7 @@ app.get("/.well-known/x402", (c) => {
     description:
       "Autonomous Bali hospitality booking agent powered by OpenServ SERV Reasoning and Kite Agent Passport x402 settlement.",
     scheme: "exact",
+    networks: [KITE_NETWORKS.mainnet, KITE_NETWORKS.testnet],
     network: CONFIG.chain.network,
     chainId: CONFIG.chain.chainId,
     asset: {
@@ -121,6 +130,7 @@ app.get("/.well-known/x402", (c) => {
     },
     payTo: CONFIG.payTo,
     facilitator: CONFIG.facilitatorUrl,
+    serviceYaml: `${CONFIG.publicUrl}/service.yaml`,
     endpoints: [
       {
         method: "GET",
@@ -167,6 +177,7 @@ app.get("/api/state", (c) => {
         chainId: CONFIG.chain.chainId,
         symbol: CONFIG.chain.symbol,
         asset: CONFIG.chain.asset,
+        networks: KITE_NETWORKS,
         payTo: CONFIG.payTo,
         facilitatorUrl: CONFIG.facilitatorUrl,
         explorer: CONFIG.chain.explorer,
@@ -388,7 +399,7 @@ app.post("/api/x402/reserve", async (c) => {
     bookingCode,
     sessionId,
     venue.id,
-    `${venue.name} — ${venue.unit_label}`,
+    `${venue.name}: ${venue.unit_label}`,
     guestName,
     pax,
     amountUsd,

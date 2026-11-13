@@ -1,0 +1,36 @@
+schema: 1
+name: balian-kite-concierge
+display_name: Balian Kite Concierge
+description: >-
+  Autonomous Bali hospitality booking agent (beach club daybeds, clifftop villas,
+  fastboats, and coastal EV rentals) guarded by OpenServ SERV Reasoning
+  (serv_prompt_guard + serv_shadow_agent) and settled via Kite x402.
+maintainer:
+  github: adisusilayasa
+status: live
+network: eip155:2366
+pay_to: "0x0f293A120B37Cd384287712A7Fe5b0ED379395D4"
+upstream:
+  name: Balian Kite Concierge
+  url: https://concierge.balianapp.com
+  requires_api_key: false
+source: typescript-hono
+endpoints:
+  - method: GET
+    path: /api/x402/quote
+    summary: Verified Bali venue availability quote, sunset azimuth, and tide telemetry.
+    price_usd: "0.05"
+    example_request:
+      query:
+        venueId: azure-s1
+  - method: POST
+    path: /api/x402/reserve
+    summary: Atomic Bali hospitality reservation and 100% consumable credit lock.
+    price_usd: "68.00"
+    example_request:
+      body:
+        venueId: azure-s1
+        guestName: Elena Vance
+        pax: 2
+categories: [travel, hospitality, agents, commerce]
+tags: [bali, hospitality, booking, serv-reasoning, x402, kite-passport]

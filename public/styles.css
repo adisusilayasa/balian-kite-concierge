@@ -221,7 +221,7 @@ textarea:disabled {
 }
 
 .title-block {
-  min-width: 0;
+  min-width: 240px;
   flex: 1;
 }
 
@@ -329,6 +329,140 @@ h1 {
 
 .btn-secondary:active {
   transform: scale(0.97);
+}
+
+.btn-wallet {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--control);
+  background-color: var(--raised);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 150ms var(--ease-out), transform 140ms var(--ease-out);
+}
+
+.btn-wallet:hover {
+  border-color: var(--accent);
+}
+
+.btn-wallet:active {
+  transform: scale(0.97);
+}
+
+.wallet-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--muted);
+  flex: none;
+}
+
+.wallet-dot.live {
+  background-color: var(--positive);
+}
+
+/* Interactive Bali Architectural Floor & Coastline Map */
+.floor-map-band {
+  margin-bottom: 16px;
+  padding: 4px 0 16px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--text);
+}
+
+.floor-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.floor-map-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.floor-map-node {
+  cursor: pointer;
+  transition: opacity 150ms var(--ease-out);
+}
+
+.floor-map-node:hover {
+  opacity: 0.9;
+}
+
+.unit-telemetry-bar {
+  margin-top: 8px;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.split-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-left: 2px solid var(--accent);
+  background-color: transparent;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+
+.split-copy-btn {
+  background: transparent;
+  border: 0;
+  padding: 4px 8px;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.split-copy-btn:hover {
+  text-decoration: underline;
+}
+
+.trace-details {
+  border-top: 1px solid var(--rule);
+  padding: 8px 0 0;
+  color: var(--ink-soft);
+}
+
+.trace-details summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  list-style: none;
+}
+
+.trace-details summary:hover {
+  color: var(--text);
+}
+
+.trace-details[open] summary {
+  margin-bottom: 8px;
+  color: var(--text);
 }
 
 .btn-sm {
