@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Balian Kite Concierge: Autonomous Bali Hospitality Booking Agent</title>
+  <meta name="description" content="Autonomous Bali villa, beach club, and mobility booking concierge powered by OpenServ SERV Reasoning and Kite Agent Passport x402 payments.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Icon Rail (Desktop) -->
+    <aside class="icon-rail" aria-label="Workspace navigation">
+      <div class="rail-brand" title="Balian Kite Concierge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2L20 10L12 22L4 10L12 2Z" />
+          <path d="M12 2V22" />
+          <path d="M4 10H20" />
+        </svg>
+      </div>
+      <nav class="rail-nav">
+        <button type="button" class="rail-btn" data-nav="concierge" aria-current="page" aria-label="Concierge" title="Concierge Booking">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M8 10h8M8 14h5" />
+          </svg>
+        </button>
+        <button type="button" class="rail-btn" data-nav="passport" aria-label="Kite Passport" title="Kite Agent Passport">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+        </button>
+        <button type="button" class="rail-btn" data-nav="ledger" aria-label="x402 Ledger" title="x402 & SERV Ledger">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h10" />
+          </svg>
+        </button>
+        <button type="button" class="rail-btn" data-nav="compliance" aria-label="Compliance" title="Indonesia Legal & SERV Audit">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v18M5 7h14M5 7l-2 6h4l-2-6zM19 7l-2 6h4l-2-6z" />
+          </svg>
+        </button>
+      </nav>
+      <div class="rail-divider" aria-hidden="true"></div>
+      <div class="rail-spacer"></div>
+      <div class="rail-utilities">
+        <button type="button" class="rail-btn" id="btnRailQuick" aria-label="Quick evaluate" title="Evaluate current booking">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="canvas-wrap">
+      <main class="canvas">
+        <!-- Header Row -->
+        <header class="title-row">
+          <div class="title-block">
+            <div class="brand-headline-row">
+              <h1 id="pageTitle">Balian Kite Concierge</h1>
+              <span class="pill pill-neutral num" id="networkBadge">Kite eip155:2366</span>
+              <span class="pill pill-warning" id="servBadge">SERV Preview</span>
+            </div>
+            <p class="title-subline" id="pageSubline">Autonomous Bali booking and x402 settlement guarded by Kite Passport limits and SERV Reasoning.</p>
+            <div class="telemetry-strip" id="telemetryStrip">
+              <span class="telemetry-item num" id="telTime">Bali WITA --:--</span>
+              <span class="telemetry-item num" id="telSunset">Sunset 18:18 WITA</span>
+              <span class="telemetry-item num" id="telTide">Low Tide 0.7m</span>
+              <span class="telemetry-item num" id="telFx">1 USD = Rp 16,250</span>
+            </div>
+          </div>
+          <div class="title-actions">
+            <button type="button" class="rail-pill-btn" id="btnCurrencyTop" aria-label="Switch display currency" title="Switch currency (USD/IDR/AUD)">USD</button>
+            <button type="button" class="rail-pill-btn" id="btnLangTop" aria-label="Switch language" title="Switch language (EN/ID)">EN</button>
+            <button type="button" class="btn-secondary btn-sm" id="btnInspect402">Test live x402 402</button>
+            <button type="button" class="btn-primary btn-sm" id="btnQuickRun">Run booking check</button>
+          </div>
+        </header>
+
+        <!-- Divided KPI Strip -->
+        <section class="kpi-strip" aria-label="Session and protocol metrics">
+          <div class="kpi-cell">
+            <span class="kpi-label" data-i18n="kpiCap">Session cap remaining</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value num" id="kpiRemaining">$132.00</span>
+            </div>
+            <span class="kpi-meta num" id="kpiRemainingSub">of $150.00 total cap</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label" data-i18n="kpiPerTx">Per-transaction ceiling</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value num" id="kpiPerTx">$80.00</span>
+            </div>
+            <span class="kpi-meta" id="kpiPerTxSub">Passkey-bound session</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label" data-i18n="kpiSettled">Settled bookings</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value num" id="kpiSettled">1</span>
+            </div>
+            <span class="kpi-meta num positive" id="kpiSettledSub">$18.00 committed</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label" data-i18n="kpiBlocks">Guardrail blocks</span>
+            <div class="kpi-value-row">
+              <span class="kpi-value num" id="kpiBlocked">0</span>
+            </div>
+            <span class="kpi-meta num" id="kpiBlockedSub">0 total policy traces</span>
+          </div>
+        </section>
+
+        <!-- View 1: Concierge Workspace -->
+        <section class="view-panel" id="view-concierge" aria-labelledby="pageTitle">
+          <div class="workspace-grid">
+            <!-- Left Column: Bali Inventory + SVG Availability Strip -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title" data-i18n="invTitle">Bali hospitality inventory</h2>
+                  <span class="card-sub" data-i18n="invSub">Full-booked units stay visible with nearest open alternatives.</span>
+                </div>
+                <span class="card-sub num" id="invCountLabel">6 units</span>
+              </div>
+
+              <div class="underline-tabs" role="tablist" aria-label="Venue categories">
+                <button type="button" class="tab-btn" role="tab" data-cat="all" aria-selected="true">All venues</button>
+                <button type="button" class="tab-btn" role="tab" data-cat="beach_club" aria-selected="false">Beach clubs</button>
+                <button type="button" class="tab-btn" role="tab" data-cat="villa" aria-selected="false">Villas</button>
+                <button type="button" class="tab-btn" role="tab" data-cat="fastboat" aria-selected="false">Fastboats</button>
+                <button type="button" class="tab-btn" role="tab" data-cat="mobility" aria-selected="false">Mobility</button>
+              </div>
+
+              <div class="venue-list" id="venueList" role="listbox" aria-label="Select Bali venue"></div>
+
+              <!-- Custom SVG Chart 1: Bali Sunset & Slot Window Strip -->
+              <div class="chart-block">
+                <div class="chart-head">
+                  <span class="chart-title" data-i18n="chartWindow">Operating windows and 18:18 WITA sunset horizon</span>
+                  <div class="chart-legend">
+                    <span class="legend-item"><span class="swatch" style="background: var(--accent);"></span>Selected unit</span>
+                    <span class="legend-item"><span class="swatch" style="background: var(--control);"></span>Open window</span>
+                    <span class="legend-item"><span class="swatch" style="background: var(--negative);"></span>Full booked</span>
+                  </div>
+                </div>
+                <div id="timelineChartHost"></div>
+              </div>
+
+              <!-- Custom SVG Chart 2: Kite Passport Allowance Plan -->
+              <div class="chart-block">
+                <div class="chart-head">
+                  <span class="chart-title" data-i18n="chartAllowance">Kite Passport session budget</span>
+                  <span class="card-sub num" id="allowanceNumbers">$18.00 spent / $150.00 cap</span>
+                </div>
+                <div id="allowancePlanHost"></div>
+              </div>
+            </div>
+
+            <!-- Right Column: Autonomous Agent Runner -->
+            <div class="card runner-card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title" data-i18n="runnerTitle">Autonomous booking runner</h2>
+                  <span class="card-sub" data-i18n="runnerSub">SERV Reasoning proposes; deterministic Kite rules enforce caps.</span>
+                </div>
+              </div>
+
+              <div class="preset-row" aria-label="Test scenarios">
+                <button type="button" class="preset-btn" data-preset="happy">Sunset bed ($68)</button>
+                <button type="button" class="preset-btn" data-preset="overcap">Villa over cap ($195)</button>
+                <button type="button" class="preset-btn" data-preset="injection">Prompt injection test</button>
+                <button type="button" class="preset-btn" data-preset="soldout">Full booked check</button>
+              </div>
+
+              <div class="field-group">
+                <label for="promptInput" data-i18n="lblPrompt">Guest booking request</label>
+                <textarea id="promptInput" placeholder="Book sunset infinity daybed at Azure Ocean Club for 2 guests under $80"></textarea>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field-group">
+                  <label for="guestNameInput" data-i18n="lblGuest">Guest name</label>
+                  <input type="text" id="guestNameInput" value="Elena Vance (SG)">
+                </div>
+                <div class="field-group">
+                  <label for="paxInput" data-i18n="lblPax">Guests</label>
+                  <input type="number" id="paxInput" min="1" max="12" value="2">
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label data-i18n="lblJurisdiction">Traveler jurisdiction (UU No. 7/2011 gate)</label>
+                <div class="seg-control">
+                  <button type="button" class="seg-btn" data-jur="cross_border_intl" aria-pressed="true">Cross-border (x402)</button>
+                  <button type="button" class="seg-btn" data-jur="domestic_indonesia" aria-pressed="false">Domestic ID (QRIS)</button>
+                </div>
+              </div>
+
+              <button type="button" class="btn-primary" id="btnEvaluate" style="width: 100%; height: 38px;">
+                Evaluate booking
+              </button>
+
+              <div class="trace-box" id="traceBox" aria-live="polite">
+                <div class="notice-line">
+                  Pick a venue or preset above and run the policy engine to inspect the live SERV Reasoning trace, Kite cap check, and HTTP 402 payment terms.
+                </div>
+              </div>
+
+              <div class="recent-feed" id="recentFeed"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 2: Kite Passport Sessions -->
+        <section class="view-panel" id="view-passport" hidden>
+          <div class="stack-2col">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Kite Agent Passport sessions</h2>
+                  <span class="card-sub">Passkey-authorized allowance envelopes enforced before x402 settlement.</span>
+                </div>
+                <button type="button" class="btn-secondary btn-sm" id="btnResetDemo">Reset demo cap</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Session</th>
+                      <th>Status</th>
+                      <th class="num">Per-tx</th>
+                      <th class="num">Spent</th>
+                      <th class="num">Total cap</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sessionsTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Update active spending cap</h2>
+                  <span class="card-sub">Changes apply immediately to subsequent SERV Reasoning checks.</span>
+                </div>
+              </div>
+              <div class="field-row-2">
+                <div class="field-group">
+                  <label for="capPerTxInput">Max per transaction (USD)</label>
+                  <input type="number" id="capPerTxInput" min="5" max="2000" value="80">
+                </div>
+                <div class="field-group">
+                  <label for="capTotalInput">Session total cap (USD)</label>
+                  <input type="number" id="capTotalInput" min="10" max="5000" value="150">
+                </div>
+              </div>
+              <div class="field-group">
+                <label for="sessionStatusSelect">Session state</label>
+                <select id="sessionStatusSelect">
+                  <option value="active">Active (allow within caps)</option>
+                  <option value="paused">Paused (hold all autonomous payments)</option>
+                </select>
+              </div>
+              <button type="button" class="btn-primary" id="btnSaveCaps" style="width: 100%; height: 36px;">Save Kite session policy</button>
+
+              <div class="chart-block">
+                <div class="chart-head">
+                  <span class="chart-title">Equivalent Kite CLI command</span>
+                </div>
+                <pre class="code-block" id="kpassCliPreview"></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 3: x402 Protocol & Ledger -->
+        <section class="view-panel" id="view-ledger" hidden>
+          <div class="stack-2col">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Settled bookings ledger</h2>
+                  <span class="card-sub">Committed reservations reconciled against session allowance.</span>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Venue</th>
+                      <th>Rail</th>
+                      <th class="num">USD</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bookingsTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">SERV Reasoning and policy audit log</h2>
+                  <span class="card-sub">Every evaluated prompt, injection shield, and deterministic decision.</span>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Trace</th>
+                      <th>Verdict</th>
+                      <th>Engine</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tracesTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">Live x402 endpoints and discovery</h2>
+                <span class="card-sub">Pieverse Facilitator v2 verified on Kite chain.</span>
+              </div>
+              <button type="button" class="btn-secondary btn-sm" id="btnCheckReadyz">Ping facilitator /readyz</button>
+            </div>
+            <pre class="code-block" id="x402EndpointsPreview"></pre>
+          </div>
+        </section>
+
+        <!-- View 4: Compliance & Architecture -->
+        <section class="view-panel" id="view-compliance" hidden>
+          <div class="stack-2col">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Indonesia currency compliance shield</h2>
+                  <span class="card-sub">Statutory routing under UU Mata Uang No. 7/2011 and PBI 18/40/PBI/2016.</span>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Booking scenario</th>
+                      <th>Permitted rail</th>
+                      <th>Enforcement</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Cross-border international traveler API</td>
+                      <td><span class="pill pill-positive">x402 USDC.e (Kite)</span></td>
+                      <td>Permitted under UU No. 7/2011 Pasal 21(2)(c) cross-border settlement exemption</td>
+                    </tr>
+                    <tr>
+                      <td>Domestic walk-in or local Indonesia resident</td>
+                      <td><span class="pill pill-warning">IDR QRIS Only</span></td>
+                      <td>Crypto settlement blocked at policy gate; routes strictly to Indonesian Rupiah</td>
+                    </tr>
+                    <tr>
+                      <td>100% Consumable hospitality credit</td>
+                      <td><span class="pill pill-neutral">F&amp;B credit lock</span></td>
+                      <td>Pre-authorized deposit converts 1:1 into venue F&amp;B tab upon arrival</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">OpenServ SERV Reasoning tools active</h2>
+                  <span class="card-sub">Structured reasoning layer wired into /v1/chat/completions.</span>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Tool</th>
+                      <th>Role in concierge</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>serv_prompt_guard</code></td>
+                      <td>Protects system policy and merchant payTo address against prompt-injection overrides in guest text</td>
+                    </tr>
+                    <tr>
+                      <td><code>serv_shadow_agent</code></td>
+                      <td>Runs bounded validate-and-iterate verification so venue IDs and USD totals match catalog truth</td>
+                    </tr>
+                    <tr>
+                      <td>Deterministic clamp</td>
+                      <td>Enforces Kite Passport per-tx ceiling, remaining session balance, and availability before settlement</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="notice-line" style="margin-top: 14px;">
+                <strong>Trademark Safe Harbor:</strong> Showcase venues (Azure Ocean Club, Karang Cliff Sanctuary, Nusa Horizon Express, Canggu Coastal EV, Sawah Pavilion) are proprietary demonstration properties not affiliated with third-party hospitality trademarks.
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile workspace navigation">
+    <button type="button" class="mobile-nav-btn" data-nav="concierge" aria-current="page">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
+      <span>Concierge</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" data-nav="passport">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+      <span>Passport</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" data-nav="ledger">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      <span>Ledger</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" data-nav="compliance">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-2 6h4l-2-6zM19 7l-2 6h4l-2-6z"/></svg>
+      <span>Policy</span>
+    </button>
+  </nav>
+
+  <!-- HTTP 402 Challenge Inspector Modal -->
+  <div class="modal-backdrop" id="challengeModal" hidden role="dialog" aria-modal="true" aria-labelledby="challengeModalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2 class="card-title" id="challengeModalTitle">Live HTTP 402 x402 payment challenge</h2>
+          <span class="card-sub">Decoded directly from our server&rsquo;s PAYMENT-REQUIRED header.</span>
+        </div>
+        <button type="button" class="icon-close-btn" id="btnCloseModal" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div id="challengeModalBody"></div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

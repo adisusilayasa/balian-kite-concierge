@@ -1,0 +1,24 @@
+{
+  "name": "balian-kite-concierge",
+  "version": "1.0.0",
+  "description": "Autonomous Bali hospitality booking agent powered by OpenServ SERV Reasoning and Kite Passport x402 payments",
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx watch src/server.ts",
+    "start": "npx tsx src/server.ts",
+    "check": "npx tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "@x402/core": "latest",
+    "@x402/evm": "latest",
+    "@x402/hono": "latest",
+    "hono": "^4.7.0",
+    "openai": "^4.85.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

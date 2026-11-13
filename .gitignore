@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.wallet
+*.db
+*.db-shm
+*.db-wal
+.taste-skill/
+.hallmark/
+dist/
