@@ -1024,7 +1024,7 @@
       const v = state.data?.venues?.find((x) => x.id === state.selectedVenueId);
       const pax = Math.max(1, Number(document.getElementById("paxInput")?.value || 2));
       if (!v) return;
-      const url = `${window.location.origin}/?venue=${encodeURIComponent(v.id)}&pax=${pax}`;
+      const url = `${window.location.origin}/app?venue=${encodeURIComponent(v.id)}&pax=${pax}`;
       try {
         await navigator.clipboard.writeText(url);
         setText("btnCopySplit", "Copied link");
@@ -1097,8 +1097,14 @@
   }
 
   wireEvents();
-  refreshState().catch((err) => {
-    const box = document.getElementById("traceBox");
-    if (box) box.innerHTML = `<div class="notice-line">Failed loading initial state: ${esc(err.message)}</div>`;
-  });
+  refreshState()
+    .then(() => {
+      if (state.data && (state.data.auditTraces || []).length <= 1 && !state.lastEvaluation) {
+        runEvaluation();
+      }
+    })
+    .catch((err) => {
+      const box = document.getElementById("traceBox");
+      if (box) box.innerHTML = `<div class="notice-line">Failed loading initial state: ${esc(err.message)}</div>`;
+    });
 })();

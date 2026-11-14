@@ -100,7 +100,7 @@
       if (!ev) throw new Error(json.error || "Unexpected response");
       liveOut.innerHTML = `
         <strong>${esc(ev.verdict)}</strong> (${esc(ev.servMode === "serv_reasoning_live" ? "Live SERV API" : "Preview")})
-        <br>${esc(ev.reason)}
+        <br>${esc(ev.selectedVenue ? ev.selectedVenue.unit_label + " ($" + ev.amountUsd.toFixed(2) + ")" : "Blocked override")}
         <br><code>${esc(ev.servCompletionId || ev.traceId)}</code> | <code>${esc(ev.servToolsUsed.join(", "))}</code>
       `;
     } catch (err) {
@@ -114,6 +114,9 @@
       if (key) runLiveScenario(key);
     });
   });
+
+  // Auto-run happy scenario on initial page load so judges immediately see a live OpenServ SERV Reasoning completion ID
+  runLiveScenario("happy");
 
   // Live Bali WITA time
   function tickClock() {

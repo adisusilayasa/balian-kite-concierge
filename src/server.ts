@@ -312,8 +312,10 @@ app.post("/api/sessions", async (c) => {
 
   if (action === "reset_demo") {
     db.prepare("UPDATE passport_sessions SET spent_total = 18.00, status = 'active', max_per_tx = 80.00, max_total = 150.00 WHERE id = 'kpass_bali_01'").run();
+    db.prepare("DELETE FROM bookings WHERE id != 'bk_seed_1001'").run();
+    db.prepare("DELETE FROM audit_traces WHERE id != 'trc_seed_1001'").run();
     const active = getActiveSession("kpass_bali_01");
-    return c.json({ ok: true, activeSession: active, sessions: listSessions(), metrics: getMetricsSummary(active) });
+    return c.json({ ok: true, activeSession: active, sessions: listSessions(), bookings: listBookings(30), auditTraces: listAuditTraces(30), metrics: getMetricsSummary(active) });
   }
 
   if (action === "create") {

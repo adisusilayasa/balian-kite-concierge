@@ -10,7 +10,7 @@
 - **Project Name:** `Balian Kite Concierge`
 - **Track:** `Track 02 — Kite ("Shop, book, and pay on your behalf, safely")`
 - **Live Demo URL:** `https://concierge.balianapp.com`
-- **Demo Video (1080p MP4, 32s):** `https://concierge.balianapp.com/demo.mp4`
+- **Demo Video (1080p MP4, 32s, 120 BPM Audio):** `https://concierge.balianapp.com/demo.mp4?v=6`
 - **Interactive Workspace:** `https://concierge.balianapp.com/app`
 - **Interactive Pitch Deck:** `https://concierge.balianapp.com/deck`
 - **Downloadable PDF Pitch Deck:** `https://concierge.balianapp.com/balian-kite-concierge-deck.pdf`

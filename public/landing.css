@@ -7,7 +7,7 @@
   --raised-hover: #2b2b30;
   --preset-active: #28241d;
   --paper: #e4e5e8;
-  --paper-ink: #171719;
+  --paper-ink: #1e1e24;
   --paper-soft: #4e4e54;
   --ink: #f1f1f4;
   --ink-soft: #dcdce2;
@@ -331,16 +331,25 @@ button:disabled {
 }
 
 .plate-frame {
+  position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 16 / 9;
   overflow: clip;
   background-color: var(--raised);
 }
 
-.plate-frame img {
+.plate-frame img,
+.plate-frame video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.plate-video {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
 }
 
 .plate-caption {

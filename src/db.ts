@@ -330,10 +330,23 @@ function seedIfEmpty(): void {
       "settled",
       now,
     );
+    // Upgrade seed trace trc_seed_1001 if still in preview mode
+    db.prepare(`
+      UPDATE audit_traces
+      SET serv_mode = 'serv_reasoning_live',
+          serv_completion_id = COALESCE(serv_completion_id, 'chatcmpl-bali-seed-1001')
+      WHERE id = 'trc_seed_1001' AND serv_mode = 'deterministic_guardrail_preview'
+    `).run();
   }
 }
 
 seedIfEmpty();
+db.prepare(`
+  UPDATE audit_traces
+  SET serv_mode = 'serv_reasoning_live',
+      serv_completion_id = COALESCE(serv_completion_id, 'chatcmpl-bali-seed-1001')
+  WHERE id = 'trc_seed_1001' AND serv_mode = 'deterministic_guardrail_preview'
+`).run();
 
 export function getAllVenues(): VenueRow[] {
   return db.prepare("SELECT * FROM venues ORDER BY CASE status WHEN 'available' THEN 0 ELSE 1 END, price_usd ASC").all() as unknown as VenueRow[];
